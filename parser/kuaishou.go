@@ -70,6 +70,7 @@ func (k kuaiShou) parseShareUrl(shareUrl string) (*VideoParseInfo, error) {
 	}
 
 	data := gjson.GetBytes(videoRes.Body(), "photo")
+	fmt.Println(data)
 	avatar := data.Get("headUrl").String()
 	author := data.Get("userName").String()
 	title := data.Get("caption").String()
