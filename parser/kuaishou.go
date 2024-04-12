@@ -78,6 +78,9 @@ func (k kuaiShou) parseShareUrl(shareUrl string) (*VideoParseInfo, error) {
 	title := data.Get("caption").String()
 	videoUrl := data.Get("mainMvUrls.0.url").String()
 	cover := data.Get("coverUrls.0.url").String()
+	log.Println("videoUrl--------------" + title)
+	log.Println("videoUrl--------------" + videoUrl)
+	log.Println("videoUrl--------------" + cover)
 
 	// 获取图集
 	imageCdnHost := data.Get("ext_params.atlas.cdn.0").String()
