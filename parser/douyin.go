@@ -47,31 +47,56 @@ func (d douYin) parseVideoID(videoId string) (*VideoParseInfo, error) {
 		)
 	}
 
+	// 获取图集图片地址
+	imagesObjArr := data.Get("images").Array()
+	images := make([]string, 0, len(imagesObjArr))
+	for _, imageItem := range data.Get("images").Array() {
+		imageUrl := imageItem.Get("url_list.0").String()
+		if len(imageUrl) > 0 {
+			images = append(images, imageUrl)
+		}
+	}
+
+	// 获取视频播放地址
 	videoUrl := data.Get("video.play_addr.url_list.0").String()
 	videoUrl = strings.ReplaceAll(videoUrl, "playwm", "play")
+
+	// 如果图集地址不为空时，因为没有视频，上面抖音返回的视频地址无法访问，置空处理
+	if len(images) > 0 {
+		videoUrl = ""
+	}
+
 	videoInfo := &VideoParseInfo{
 		Title:    data.Get("desc").String(),
 		VideoUrl: videoUrl,
 		MusicUrl: "",
 		CoverUrl: data.Get("video.cover.url_list.0").String(),
+		Images:   images,
 	}
 	videoInfo.Author.Uid = data.Get("author.unique_id").String()
 	videoInfo.Author.Name = data.Get("author.nickname").String()
 	videoInfo.Author.Avatar = data.Get("author.avatar_thumb.url_list.0").String()
 
-	// 获取302重定向之后的视频地址
-	d.getRedirectUrl(videoInfo)
+	// 视频地址非空时，获取302重定向之后的视频地址
+	// 图集时，视频地址为空，不处理
+	if len(videoInfo.VideoUrl) > 0 {
+		d.getRedirectUrl(videoInfo)
+	}
 
 	return videoInfo, nil
 }
 
 func (d douYin) parseShareUrl(shareUrl string) (*VideoParseInfo, error) {
 	client := resty.New()
+	// disable redirects in the HTTP client, get params before redirects
 	client.SetRedirectPolicy(resty.NoRedirectPolicy())
-	res, _ := client.R().
+	res, err := client.R().
 		SetHeader(HttpHeaderUserAgent, DefaultUserAgent).
 		Get(shareUrl)
-	// 这里会返回err, auto redirect is disabled
+	// 非 resty.ErrAutoRedirectDisabled 错误时，返回错误
+	if !errors.Is(err, resty.ErrAutoRedirectDisabled) {
+		return nil, err
+	}
 
 	locationRes, err := res.RawResponse.Location()
 	if err != nil {
