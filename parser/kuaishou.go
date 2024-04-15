@@ -42,7 +42,7 @@ func (k kuaiShou) parseShareUrl(shareUrl string) (*VideoParseInfo, error) {
 	referUri = strings.ReplaceAll(referUri, "v.m.chenzhongtech.com/fw/photo", "m.gifshow.com/fw/photo")
 	videoId := strings.ReplaceAll(strings.Trim(locationRes.Path, "/"), "fw/long-video/", "")
 	videoId = strings.ReplaceAll(videoId, "fw/photo/", "")
-	log.Println(referUri + videoId)
+	log.Println("referUri + videoId" + referUri + videoId)
 	if len(videoId) <= 0 {
 		return nil, errors.New("parse video id from share url fail")
 	}
@@ -70,7 +70,6 @@ func (k kuaiShou) parseShareUrl(shareUrl string) (*VideoParseInfo, error) {
 	if err != nil {
 		return nil, err
 	}
-
 	data := gjson.GetBytes(videoRes.Body(), "photo")
 	log.Println(data)
 	avatar := data.Get("headUrl").String()
