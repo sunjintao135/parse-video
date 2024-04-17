@@ -25,6 +25,8 @@ func (k kuaiShou) parseShareUrl(shareUrl string) (*VideoParseInfo, error) {
 	if !errors.Is(err, resty.ErrAutoRedirectDisabled) {
 		return nil, err
 	}
+	log.Println("shareUrl---------" + shareUrl)
+	log.Println("res----------" + res.String())
 
 	// 获取 cookies： did，didv
 	cookies := res.RawResponse.Cookies()
@@ -77,9 +79,9 @@ func (k kuaiShou) parseShareUrl(shareUrl string) (*VideoParseInfo, error) {
 	title := data.Get("caption").String()
 	videoUrl := data.Get("mainMvUrls.0.url").String()
 	cover := data.Get("coverUrls.0.url").String()
-	log.Println("videoUrl--------------" + title)
+	log.Println("title--------------" + title)
 	log.Println("videoUrl--------------" + videoUrl)
-	log.Println("videoUrl--------------" + cover)
+	log.Println("cover--------------" + cover)
 
 	// 获取图集
 	imageCdnHost := data.Get("ext_params.atlas.cdn.0").String()
