@@ -30,6 +30,8 @@ func (k kuaiShou) parseShareUrl(shareUrl string) (*VideoParseInfo, error) {
 
 	// 获取 cookies： did，didv
 	cookies := res.RawResponse.Cookies()
+	log.Println("cookies开始")
+	log.Println(cookies)
 	if len(cookies) <= 0 {
 		return nil, errors.New("get cookies from share url fail")
 	}
