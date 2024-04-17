@@ -73,6 +73,8 @@ func (k kuaiShou) parseShareUrl(shareUrl string) (*VideoParseInfo, error) {
 	if err != nil {
 		return nil, err
 	}
+	log.Println("log.Println(videoRes.Body()) 开始")
+	log.Println(videoRes.Body())
 	data := gjson.GetBytes(videoRes.Body(), "photo")
 	log.Println(data)
 	avatar := data.Get("headUrl").String()
