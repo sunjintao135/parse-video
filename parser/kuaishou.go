@@ -39,6 +39,7 @@ func (k kuaiShou) parseShareUrl(shareUrl string) (*VideoParseInfo, error) {
 		return nil, err
 	}
 
+	log.Println("locationRes----------" + locationRes.String())
 	// 分享的中间跳转链接不太一样, 有些是 /fw/long-video , 有些 /fw/photo
 	referUri := strings.ReplaceAll(locationRes.String(), "v.m.chenzhongtech.com/fw/long-video", "m.gifshow.com/fw/photo")
 	referUri = strings.ReplaceAll(referUri, "v.m.chenzhongtech.com/fw/photo", "m.gifshow.com/fw/photo")
