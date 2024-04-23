@@ -3,7 +3,9 @@ package parser
 import (
 	"errors"
 	"fmt"
+	"github.com/PuerkitoBio/goquery"
 	"log"
+	"net/url"
 	"strings"
 
 	"github.com/tidwall/gjson"
@@ -47,7 +49,7 @@ func (k kuaiShou) parseShareUrl(shareUrl string) (*VideoParseInfo, error) {
 	referUri = strings.ReplaceAll(referUri, "v.m.chenzhongtech.com/fw/photo", "m.gifshow.com/fw/photo")
 	videoId := strings.ReplaceAll(strings.Trim(locationRes.Path, "/"), "fw/long-video/", "")
 	videoId = strings.ReplaceAll(videoId, "fw/photo/", "")
-	log.Println("referUri + videoId" + referUri + videoId)
+	log.Println("referUri + videoId" + referUri + "-------" + videoId)
 	if len(videoId) <= 0 {
 		return nil, errors.New("parse video id from share url fail")
 	}
@@ -70,7 +72,8 @@ func (k kuaiShou) parseShareUrl(shareUrl string) (*VideoParseInfo, error) {
 		SetHeader(HttpHeaderUserAgent, DefaultUserAgent).
 		SetCookies(cookies).
 		SetBody(postData).
-		Post("https://m.gifshow.com/rest/wd/photo/info?kpn=KUAISHOU&captchaToken=")
+		Post("https://m.gifshow.com/rest/wd/photo/info?kpn=undefined&captchaToken=&__NS_sig3=")
+	//Post("https://m.gifshow.com/rest/wd/photo/info?kpn=KUAISHOU&captchaToken=")
 
 	if err != nil {
 		return nil, err
@@ -109,4 +112,42 @@ func (k kuaiShou) parseShareUrl(shareUrl string) (*VideoParseInfo, error) {
 	parseRes.Author.Avatar = avatar
 
 	return parseRes, nil
+}
+
+func getVideoParse(reqUrl string) (string, string, string, error) {
+	referUri := strings.ReplaceAll(reqUrl, "v.m.chenzhongtech.com/fw/photo/", "www.kuaishou.com/short-video/")
+
+	client1 := resty.New()
+	res1, err2 := client1.R().
+		SetHeader(HttpHeaderUserAgent, "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.45 Safari/537.36").
+		Get(referUri)
+	if err2 != nil {
+		return "", "", "", err2
+	}
+	// 将响应体的内容读取到一个字节切片中
+	body := res1.Body()
+
+	// 使用字节切片创建一个新的读取器
+	reader := strings.NewReader(string(body))
+
+	// 解析HTML
+	doc, err2 := goquery.NewDocumentFromReader(reader)
+	if err2 != nil {
+		fmt.Println(err2)
+		return "", "", "", err2
+	}
+	fmt.Println(doc.Html())
+	videoSrc, exists := doc.Find("video").Attr("src")
+	if exists {
+		fmt.Println(videoSrc)
+	} else {
+		fmt.Println("src attribute not found")
+	}
+	name := doc.Find(".profile-user-name-title").Text()
+	ad, err2 := url.QueryUnescape(reqUrl)
+	if err2 != nil {
+		return "", "", "", err2
+	}
+	return name, ad, "", nil
+
 }
