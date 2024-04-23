@@ -72,7 +72,7 @@ func (k kuaiShou) parseShareUrl(shareUrl string) (*VideoParseInfo, error) {
 		SetHeader(HttpHeaderUserAgent, DefaultUserAgent).
 		SetCookies(cookies).
 		SetBody(postData).
-		Post("https://m.gifshow.com/rest/wd/photo/info?kpn=undefined&captchaToken=&__NS_sig3=")
+		Post("https://v.m.chenzhongtech.com/rest/wd/photo/info")
 	//Post("https://m.gifshow.com/rest/wd/photo/info?kpn=KUAISHOU&captchaToken=")
 
 	if err != nil {
